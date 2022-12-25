@@ -1,7 +1,14 @@
-import type { NextPage } from "next";
+import React from "react";
+import Login from "../src/component/LoginComponent";
+import CustomHead from "../src/common/CustomHead";
 
-const Home: NextPage = () => {
-  return <div>헬로우</div>;
-};
+function Home() {
+  return (
+    <React.Fragment>
+      <CustomHead title={"only채팅 - 로그인"} />
+      <Login />
+    </React.Fragment>
+  );
+}
 
 export default Home;
