@@ -9,4 +9,5 @@ export interface chatPropsInfo {
 export interface requestDataInfo {
   id?: string;
   message: string;
+  date?: string;
 }

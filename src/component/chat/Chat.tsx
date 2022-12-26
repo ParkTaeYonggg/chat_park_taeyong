@@ -15,6 +15,8 @@ import CustomInput from "../../common/CustomInput";
 import CustomButton from "../../common/CustomButton";
 import moment from "moment";
 import Link from "next/link";
+import axios_requestCahtApi from "../../fetcher/axios_requestChat";
+import axios_deleteUser from "../../fetcher/axios_deleteUser";
 
 const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Element => {
   const [sendMessage, setSendMessage] = useState<string>("");
@@ -33,7 +35,7 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
     socket.connect();
 
     socket.on("connect", () => {
-      requestCahtApi({ message: `${userData.id}님이 입장하였습니다.`, id: userData.id });
+      axios_requestCahtApi(requestData({ message: `${userData.id}님이 입장하였습니다.`, id: userData.id }));
     });
     socket.on("message", (req: any) => {
       chat.push(req.message);
@@ -44,7 +46,7 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
     return () => {
       if (socket) {
         if (socket.connected) {
-          axios.post("/api/deleteUser", requestData({ message: `${userData.id}님이 퇴장하셨습니다.`, id: userData.id }));
+          axios_deleteUser(requestData({ message: `${userData.id}님이 퇴장하셨습니다.`, id: userData.id }));
         }
         socket.disconnect();
       }
@@ -62,14 +64,9 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
     event.preventDefault();
 
     if (sendMessage) {
-      requestCahtApi({ message: sendMessage, id: userData.id });
+      axios_requestCahtApi(requestData({ message: sendMessage, id: userData.id }));
       setSendMessage("");
     }
-  };
-
-  const requestCahtApi = async ({ message, id }: requestDataInfo) => {
-    const data = requestData({ message: message, id: id });
-    axios.post("/api/chatapi", data);
   };
 
   const requestData = ({ message, id }: requestDataInfo) => {
