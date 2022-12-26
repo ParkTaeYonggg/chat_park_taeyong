@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@react-query-firebase/auth": "^1.0.0-dev.2",
+    "@types/moment": "^2.13.0",
     "@types/styled-components": "^5.1.26",
     "axios": "^1.2.1",
     "babel-plugin-styled-components": "^2.0.7",
     "cookies-next": "^2.1.1",
     "firebase": "^9.15.0",
+    "moment": "^2.29.4",
     "next": "13.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",

@@ -1,11 +1,11 @@
-import { chatUserPropsInfo } from "../../interface/chatInfo";
-import { StyledChatUserContainer } from "../../styles/chat/StyledChatUser";
+import { userInfo } from "../../interface/commonInfo";
+import { StyledChatUserContainer, StyledUserBar } from "../../styles/chat/StyledChatUser";
 
-const ChatUser = ({ userList }: chatUserPropsInfo): JSX.Element => {
+const ChatUser = ({ userList }: { userList: userInfo[] }): JSX.Element => {
   return (
     <StyledChatUserContainer>
-      {userList.map((user) => (
-        <h3 key={`user-${user.id}`}>{user.id}</h3>
+      {userList.map((user, idx: number) => (
+        <StyledUserBar key={`user-${user.id + String(idx)}`}>{user.id}</StyledUserBar>
       ))}
     </StyledChatUserContainer>
   );
