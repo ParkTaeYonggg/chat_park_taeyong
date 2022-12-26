@@ -3,6 +3,7 @@ import {
   StyledChatBar,
   StyledChatContainer,
   StyledChatDateBar,
+  StyledChatLogOutBar,
   StyledChatWrapper,
   StyledEnteredUserNumberBar,
   StyledSendMessageBar,
@@ -10,18 +11,19 @@ import {
 import SocketIOClient from "socket.io-client";
 import ChatUser from "./ChatUser";
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
 import CustomInput from "../../common/CustomInput";
 import CustomButton from "../../common/CustomButton";
 import moment from "moment";
-import Link from "next/link";
 import axios_requestCahtApi from "../../fetcher/axios_requestChat";
 import axios_deleteUser from "../../fetcher/axios_deleteUser";
+import { useRouter } from "next/router";
+import { deleteCookie } from "cookies-next";
 
-const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Element => {
+const Chat = ({ userData, userList, handleSetNowUser, data, nowUser }: chatPropsInfo): JSX.Element => {
   const [sendMessage, setSendMessage] = useState<string>("");
   const scrollRef: MutableRefObject<any> = useRef(null);
-  const [chat, setChat] = useState<{ message: string; id: string; date: string }[]>([]);
+  const [chat, setChat] = useState<requestDataInfo[]>(data);
+  const router = useRouter();
 
   useEffect(() => {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -35,23 +37,30 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
     socket.connect();
 
     socket.on("connect", () => {
-      axios_requestCahtApi(requestData({ message: `${userData.id}님이 입장하였습니다.`, id: userData.id }));
+      axios_requestCahtApi(requestData({ message: `${userData.id}님이 입장하였습니다.`, id: userData.id, token: userData.token }));
     });
     socket.on("message", (req: any) => {
-      chat.push(req.message);
-      handleSetUserList(req.userList);
-      setChat([...chat]);
+      handleSetNowUser(req.nowUser);
+      setChat(req.message);
     });
-
     return () => {
       if (socket) {
-        if (socket.connected) {
-          axios_deleteUser(requestData({ message: `${userData.id}님이 퇴장하셨습니다.`, id: userData.id }));
-        }
+        socket.on("disconnect", () => {
+          axios_deleteUser(requestData({ message: `${userData.id}님이 퇴장하셨습니다.`, id: userData.id, token: userData.token }));
+        });
         socket.disconnect();
       }
     };
   }, []);
+
+  useEffect(() => {
+    const handleExitPage = window.addEventListener("beforeunload", () => {
+      axios_deleteUser(requestData({ message: `${userData.id}님이 퇴장하셨습니다.`, id: userData.id, token: userData.token }));
+    });
+    return () => {
+      window.removeEventListener("beforeunload", () => handleExitPage);
+    };
+  }, [router]);
 
   const sendMessageHandler = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,29 +73,34 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
     event.preventDefault();
 
     if (sendMessage) {
-      axios_requestCahtApi(requestData({ message: sendMessage, id: userData.id }));
+      axios_requestCahtApi(requestData({ message: sendMessage, id: userData.id, token: userData.token }));
       setSendMessage("");
     }
   };
 
-  const requestData = ({ message, id }: requestDataInfo) => {
+  const requestData = ({ message, id, token }: requestDataInfo) => {
     return {
       id: id || "anonymous user",
       message: message,
       date: moment(new Date()).format("YYYY-MM-DD hh:mm:ss"),
+      token: token,
     };
   };
 
+  const handleLogOut = () => {
+    deleteCookie("userData");
+    router.push("/");
+  };
   return (
     <>
       <StyledChatWrapper>
         <section>
           <StyledEnteredUserNumberBar>
-            총 입장 수 : {userList.length} 명<Link href={"/"}>로그아웃</Link>
+            현재 접속자: {nowUser.length} 명<StyledChatLogOutBar onClick={() => handleLogOut()}>로그아웃</StyledChatLogOutBar>
           </StyledEnteredUserNumberBar>
           <StyledChatContainer ref={scrollRef}>
-            {chat.map((e, idx: number) => (
-              <div key={`chatBar-${e.id + idx}`}>
+            {chat?.map((e, idx: number) => (
+              <div key={`chatBar-${idx}`}>
                 <StyledChatBar isYou={e.id !== userData.id}>
                   <div>{e.id}</div>
                   <div>{e.message}</div>
@@ -96,7 +110,7 @@ const Chat = ({ userData, userList, handleSetUserList }: chatPropsInfo): JSX.Ele
             ))}
           </StyledChatContainer>
         </section>
-        <ChatUser userList={userList || [userData]} />
+        <ChatUser userList={userList || [userData]} nowUser={nowUser} />
       </StyledChatWrapper>
       <form onSubmit={(event) => submitSendMessage(event)}>
         <StyledSendMessageBar>

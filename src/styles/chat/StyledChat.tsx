@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styled from "styled-components";
 import { theme } from "../theme";
 
@@ -17,6 +18,11 @@ export const StyledEnteredUserNumberBar = styled.div`
   align-items: center;
   padding: 0 5px;
   justify-content: space-between;
+`;
+export const StyledChatLogOutBar = styled.span`
+  color: ${theme.fontColor.gray};
+  text-decoration: none;
+  cursor: pointer;
 `;
 export const StyledChatContainer = styled.div`
   height: 80vh;
