@@ -6,10 +6,12 @@ export const theme = {
     red: "#e21650",
   },
   backgroundColor: {
+    green: "#93bf85",
     gray: "#f6f6f6",
     white: "#ffffff",
     brown: "#968282",
     red: "#df9bae",
+    darkGray: "#aeadad",
   },
   borderColor: {
     red: "#df9bae",

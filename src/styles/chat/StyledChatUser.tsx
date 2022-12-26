@@ -13,9 +13,9 @@ export const StyledUserBar = styled.h3`
   align-items: center;
 `;
 
-export const StyledNowUserIcon = styled.span`
+export const StyledNowUserIcon = styled.span<{ styleColor: boolean }>`
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: ${theme.backgroundColor.red};
+  background-color: ${(props) => (props.styleColor ? theme.backgroundColor.green : theme.backgroundColor.darkGray)};
 `;

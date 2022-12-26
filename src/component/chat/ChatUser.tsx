@@ -9,10 +9,11 @@ const ChatUser = ({ userList, nowUser }: { userList: userInfo[]; nowUser: userIn
   };
   return (
     <StyledChatUserContainer>
+      <p style={{ textAlign: "center" }}>전체 인원 : {userList.length} 명</p>
       {userList.map((user, idx: number) => (
         <StyledUserBar key={`user-${user.id + String(idx)}`} onClick={() => handleUserClick(user.id)}>
           {user.id}
-          {nowUser.find((e) => e.id === user.id) && <StyledNowUserIcon />}
+          {nowUser.find((e) => e.id === user.id) ? <StyledNowUserIcon styleColor={true} /> : <StyledNowUserIcon styleColor={false} />}
         </StyledUserBar>
       ))}
     </StyledChatUserContainer>
